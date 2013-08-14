@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 
-namespace Open311.Common
+namespace Seattle311.API.Common
 {
     public class ServiceException : WebException
     {

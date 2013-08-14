@@ -7,14 +7,14 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Seattle311.Resources;
-using Open311;
+using Seattle311.API;
 using Seattle311.Common;
 
 namespace Seattle311
 {
     public partial class App : Application
     {
-        public static ServiceClient Open311Client;
+        public static ServiceClient Seattle311Client;
 
         public static PhoneApplicationFrame RootFrame { get; private set; }
 
@@ -29,7 +29,7 @@ namespace Seattle311
             // Phone-specific initialization
             InitializePhoneApplication();
 
-            Open311Client = new ServiceClient("seattle.spotreporters.com", "c047fae2a21cde1304f6b733b54b9e02");
+            Seattle311Client = new ServiceClient("seattle.spotreporters.com", "c047fae2a21cde1304f6b733b54b9e02");
         }
 
         private void Application_Launching(object sender, LaunchingEventArgs e)

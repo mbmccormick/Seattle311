@@ -8,7 +8,7 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Seattle311.Resources;
-using Open311.Models;
+using Seattle311.API.Models;
 using System.Collections.ObjectModel;
 using Seattle311.Common;
 
@@ -19,12 +19,16 @@ namespace Seattle311
         #region List Properties
 
         public static ObservableCollection<Service> Services { get; set; }
+        public static ObservableCollection<ServiceRequest> ServiceRequests { get; set; }
 
         #endregion
 
         public MainPage()
         {
+            InitializeComponent();
+
             Services = new ObservableCollection<Service>();
+            ServiceRequests = new ObservableCollection<ServiceRequest>();
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -37,7 +41,7 @@ namespace Seattle311
 
         private void LoadData()
         {
-            App.Open311Client.GetServices((result) =>
+            App.Seattle311Client.GetServices((result) =>
             {
                 SmartDispatcher.BeginInvoke(() =>
                 {
@@ -49,6 +53,26 @@ namespace Seattle311
                     }
                 });
             });
+
+            App.Seattle311Client.GetRecentServiceRequests((result) =>
+            {
+                SmartDispatcher.BeginInvoke(() =>
+                {
+                    ServiceRequests.Clear();
+
+                    foreach (ServiceRequest item in result)
+                    {
+                        ServiceRequests.Add(item);
+                    }
+                });
+            });
+        }
+
+        private void Item_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            Service item = ((FrameworkElement)sender).DataContext as Service;
+
+            App.RootFrame.Navigate(new Uri("/NewServiceRequestPage.xaml?id=" + item.service_code, UriKind.Relative));
         }
     }
 }
