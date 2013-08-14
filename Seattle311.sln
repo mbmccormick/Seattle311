@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Seattle311", "Seattle311\Seattle311.csproj", "{33E664DE-2591-405C-9016-87C3B9725531}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open311", "Open311\Open311.csproj", "{3EB95B12-74F3-4BB7-8018-E8042692F8A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Seattle311.API", "Seattle311.API\Seattle311.API.csproj", "{3EB95B12-74F3-4BB7-8018-E8042692F8A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -150,9 +150,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Open311\Open311.csproj">
+    <ProjectReference Include="..\Seattle311.API\Seattle311.API.csproj">
       <Project>{3EB95B12-74F3-4BB7-8018-E8042692F8A9}</Project>
-      <Name>Open311</Name>
+      <Name>Seattle311.API</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
