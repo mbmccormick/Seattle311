@@ -12,7 +12,7 @@ namespace Seattle311.Controls
 {
     public partial class AttributeDateTimeControl : UserControl
     {
-        public string LabelName { get; set; }
+        public Seattle311.API.Models.Attribute AttributeData { get; set; }
 
         public AttributeDateTimeControl()
         {

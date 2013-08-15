@@ -10,6 +10,7 @@ using Microsoft.Phone.Shell;
 using Seattle311.API.Models;
 using Seattle311.Common;
 using Seattle311.Controls;
+using System.Device.Location;
 
 namespace Seattle311
 {
@@ -21,15 +22,27 @@ namespace Seattle311
 
         #endregion
 
+        private GeoCoordinateWatcher locationService = null;
+
         private bool isLoaded = false;
+
+        ApplicationBarIconButton submit;
+        ApplicationBarIconButton attach;
 
         public NewServiceRequestPage()
         {
             InitializeComponent();
+
+            locationService = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
+            locationService.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationService_PositionChanged);
+
+            this.BuildApplicationBar();
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
+            locationService.Start();
+
             if (isLoaded == false)
             {
                 LoadData();
@@ -54,45 +67,44 @@ namespace Seattle311
                                 if (item.datatype == "string")
                                 {
                                     var control = new AttributeStringControl();
-                                    control.LabelName = item.description;
+                                    control.AttributeData = item;
 
-                                    this.ContentPanel.Children.Add(control);
+                                    this.stkFormFields.Children.Add(control);
                                 }
                                 else if (item.datatype == "number")
                                 {
                                     var control = new AttributeNumberControl();
-                                    control.LabelName = item.description;
+                                    control.AttributeData = item;
 
-                                    this.ContentPanel.Children.Add(control);
+                                    this.stkFormFields.Children.Add(control);
                                 }
                                 else if (item.datatype == "datetime")
                                 {
                                     var control = new AttributeDateTimeControl();
-                                    control.LabelName = item.description;
+                                    control.AttributeData = item;
 
-                                    this.ContentPanel.Children.Add(control);
+                                    this.stkFormFields.Children.Add(control);
                                 }
                                 else if (item.datatype == "text")
                                 {
                                     var control = new AttributeTextControl();
-                                    control.LabelName = item.description;
+                                    control.AttributeData = item;
 
-                                    this.ContentPanel.Children.Add(control);
+                                    this.stkFormFields.Children.Add(control);
                                 }
                                 else if (item.datatype == "singlevaluelist")
                                 {
                                     var control = new AttributeSingleValueListControl();
-                                    control.LabelName = item.description;
-                                    control.Values = item.values;
+                                    control.AttributeData = item;
 
-                                    this.ContentPanel.Children.Add(control);
+                                    this.stkFormFields.Children.Add(control);
                                 }
                                 else if (item.datatype == "multivaluelist")
                                 {
                                     var control = new AttributeMultiValueListControl();
-                                    control.LabelName = item.description;
+                                    control.AttributeData = item;
 
-                                    this.ContentPanel.Children.Add(control);
+                                    this.stkFormFields.Children.Add(control);
                                 }
                             }
                         }
@@ -100,6 +112,30 @@ namespace Seattle311
                         isLoaded = true;
                     });
                 }, id);
+            }
+        }
+
+        private void BuildApplicationBar()
+        {
+            submit = new ApplicationBarIconButton();
+            submit.IconUri = new Uri("/Resources/submit.png", UriKind.RelativeOrAbsolute);
+            submit.Text = "submit";
+
+            attach = new ApplicationBarIconButton();
+            attach.IconUri = new Uri("/Resources/attach.png", UriKind.RelativeOrAbsolute);
+            attach.Text = "attach";
+
+            // build application bar
+            ApplicationBar.Buttons.Add(submit);
+            ApplicationBar.Buttons.Add(attach);
+        }
+
+        private void locationService_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
+        {
+            if (locationService.Status == GeoPositionStatus.Ready &&
+                e.Position.Location.IsUnknown == false)
+            {
+                this.txtLocation.Text = e.Position.Location.Latitude.ToString() + ", " + e.Position.Location.Longitude.ToString();
             }
         }
     }

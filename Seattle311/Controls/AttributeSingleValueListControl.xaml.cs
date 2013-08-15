@@ -13,8 +13,7 @@ namespace Seattle311.Controls
 {
     public partial class AttributeSingleValueListControl : UserControl
     {
-        public string LabelName { get; set; }
-        public List<Value> Values { get; set; }
+        public Seattle311.API.Models.Attribute AttributeData { get; set; }
 
         public AttributeSingleValueListControl()
         {

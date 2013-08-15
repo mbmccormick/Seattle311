@@ -10,8 +10,8 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
-    <StackPanel x:Name="LayoutRoot">
-        <TextBlock Text="{Binding LabelName}" Style="{StaticResource PhoneTextSubtleStyle}" />
+    <StackPanel x:Name="LayoutRoot" Margin="0,0,0,12">
+        <TextBlock Text="{Binding AttributeData.description}" Style="{StaticResource PhoneTextSubtleStyle}" Margin="12,0,12,-6" />
         <TextBox InputScope="Text" />
     </StackPanel>
 </UserControl>
