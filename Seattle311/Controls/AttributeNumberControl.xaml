@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="Seattle311.Controls.AttributeNumberControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    DataContext="{Binding RelativeSource={RelativeSource Self}}">
+
+    <StackPanel x:Name="LayoutRoot">
+        <TextBlock Text="{Binding LabelName}" Style="{StaticResource PhoneTextSubtleStyle}" />
+        <TextBox x:Name="Value" InputScope="Number" />
+    </StackPanel>
+</UserControl>
