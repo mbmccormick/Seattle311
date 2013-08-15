@@ -15,6 +15,14 @@ namespace Seattle311.Controls
     {
         public Seattle311.API.Models.Attribute AttributeData { get; set; }
 
+        public int Value
+        {
+            get
+            {
+                return Convert.ToInt32(this.txtValue.Text);
+            }
+        }
+
         public AttributeNumberControl()
         {
             InitializeComponent();

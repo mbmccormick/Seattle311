@@ -72,7 +72,7 @@ namespace Seattle311
         {
             Service item = ((FrameworkElement)sender).DataContext as Service;
 
-            App.RootFrame.Navigate(new Uri("/NewServiceRequestPage.xaml?id=" + item.service_code, UriKind.Relative));
+            App.RootFrame.Navigate(new Uri("/NewServiceRequestPage.xaml?id=" + item.service_code + "&name=" + item.service_name, UriKind.Relative));
         }
     }
 }

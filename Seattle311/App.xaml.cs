@@ -29,7 +29,8 @@ namespace Seattle311
             // Phone-specific initialization
             InitializePhoneApplication();
 
-            Seattle311Client = new ServiceClient("servicerequest-qa.seattle.gov", "74187328b9dd2f1c7d0d82485d9523c4"); // development
+            Seattle311Client = new ServiceClient("test311request.cityofchicago.org", "30d67e348eed17834cded54d730fdeda");
+            // Seattle311Client = new ServiceClient("servicerequest-qa.seattle.gov", "74187328b9dd2f1c7d0d82485d9523c4"); // development
             // Seattle311Client = new ServiceClient("servicerequest.seattle.gov", "c047fae2a21cde1304f6b733b54b9e02"); // production
         }
 

@@ -15,6 +15,14 @@ namespace Seattle311.Controls
     {
         public Seattle311.API.Models.Attribute AttributeData { get; set; }
 
+        public string Value
+        {
+            get
+            {
+                return AttributeData.values[this.lstValue.SelectedIndex].key;
+            }
+        }
+
         public AttributeSingleValueListControl()
         {
             InitializeComponent();

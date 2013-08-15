@@ -21,27 +21,29 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="12,17,0,28">
-            <TextBlock Text="SEATTLE 311" Style="{StaticResource PhoneTextNormalStyle}" FontSize="{StaticResource PhoneFontSizeMedium}" FontFamily="{StaticResource PhoneFontFamilySemiBold}" />
+            <TextBlock x:Name="txtTitle" Text="SEATTLE 311" Style="{StaticResource PhoneTextNormalStyle}" FontSize="{StaticResource PhoneFontSizeMedium}" FontFamily="{StaticResource PhoneFontFamilySemiBold}" />
             <TextBlock Text="new request" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
         </StackPanel>
 
-        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0" ScrollViewer.VerticalScrollBarVisibility="Auto">
-            <StackPanel x:Name="stkFormFields">
-            </StackPanel>
-
+        <ScrollViewer x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
             <StackPanel>
-                <TextBlock Text="Description" Style="{StaticResource PhoneTextSubtleStyle}" />
-                <TextBox x:Name="txtDescription" InputScope="Text" AcceptsReturn="True" TextWrapping="Wrap" Height="160" />
+                <StackPanel x:Name="stkFormFields">
+                </StackPanel>
 
-                <TextBlock Text="Location" Style="{StaticResource PhoneTextSubtleStyle}" />
-                <TextBox x:Name="txtLocation" InputScope="Text" IsEnabled="false" />
+                <StackPanel x:Name="stkStandardFields" Margin="0,0,0,18">
+                    <TextBlock Text="Description" Style="{StaticResource PhoneTextSubtleStyle}" />
+                    <TextBox x:Name="txtDescription" InputScope="Text" AcceptsReturn="True" TextWrapping="Wrap" Height="160" />
+
+                    <TextBlock Text="Location" Style="{StaticResource PhoneTextSubtleStyle}" />
+                    <TextBox x:Name="txtLocation" InputScope="Text" IsEnabled="false" Margin="0,0,0,12" />
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
 
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
-            
+
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 

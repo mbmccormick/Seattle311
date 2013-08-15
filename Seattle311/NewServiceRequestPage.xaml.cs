@@ -14,6 +14,9 @@ using System.Device.Location;
 using Microsoft.Phone.Tasks;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Text;
+using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Seattle311
 {
@@ -33,6 +36,8 @@ namespace Seattle311
         ApplicationBarIconButton attach;
 
         CameraCaptureTask cameraCaptureTask;
+
+        string imageUrl = null;
 
         public NewServiceRequestPage()
         {
@@ -65,6 +70,12 @@ namespace Seattle311
                     {
                         CurrentService = result;
 
+                        string name;
+                        if (NavigationContext.QueryString.TryGetValue("name", out name))
+                        {
+                            this.txtTitle.Text = this.txtTitle.Text + " - " + name.ToUpper();
+                        }
+                        
                         if (CurrentService.attributes != null)
                         {
                             foreach (Seattle311.API.Models.Attribute item in CurrentService.attributes.OrderBy(z => z.order))
@@ -147,7 +158,87 @@ namespace Seattle311
 
         private void submit_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            if (imageUrl == null)
+            {
+                if (MessageBox.Show("Are you sure you want to submit this Service Request without attaching a picture?", "Attach Picture", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                    return;
+            }
+
+            ServiceRequest request = new ServiceRequest();
+
+            request.service_code = CurrentService.service_code;
+            request.lat = locationService.Position.Location.Latitude;
+            request.@long = locationService.Position.Location.Longitude;
+            request.description = this.txtDescription.Text;
+            request.media_url = imageUrl;
+
+            foreach (UserControl control in this.stkFormFields.Children)
+            {
+                try
+                {
+                    AttributeDateTimeControl attribute = control as AttributeDateTimeControl;
+                    request.attributes.Add(attribute.AttributeData.code, attribute.Value.ToString());
+                }
+                catch (Exception ex)
+                {
+                }
+
+                //try
+                //{
+                //    AttributeMultiValueListControl attribute = control as AttributeMultiValueListControl;
+                //    request.attributes.Add(attribute.AttributeData.code, attribute.Value.ToString());
+                //}
+                //catch (Exception ex)
+                //{
+                //}
+
+                try
+                {
+                    AttributeNumberControl attribute = control as AttributeNumberControl;
+                    request.attributes.Add(attribute.AttributeData.code, attribute.Value.ToString());
+                }
+                catch (Exception ex)
+                {
+                }
+
+                try
+                {
+                    AttributeSingleValueListControl attribute = control as AttributeSingleValueListControl;
+                    request.attributes.Add(attribute.AttributeData.code, attribute.Value);
+                }
+                catch (Exception ex)
+                {
+                }
+
+                try
+                {
+                    AttributeStringControl attribute = control as AttributeStringControl;
+                    request.attributes.Add(attribute.AttributeData.code, attribute.Value);
+                }
+                catch (Exception ex)
+                {
+                }
+
+                try
+                {
+                    AttributeTextControl attribute = control as AttributeTextControl;
+                    request.attributes.Add(attribute.AttributeData.code, attribute.Value);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+            App.Seattle311Client.CreateServiceRequest((result) =>
+            {
+                SmartDispatcher.BeginInvoke(() =>
+                {
+                    MessageBox.Show("Service Request " + result.token + " was created successfully.");
+
+                    NavigationService.GoBack();
+                });
+
+            }, request);
         }
 
         private void locationService_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
@@ -170,48 +261,79 @@ namespace Seattle311
                 imageControl.Margin = new Thickness(12, 0, 12, 18);
                 imageControl.Source = bmp;
 
-                this.stkFormFields.Children.Add(imageControl);
+                this.stkStandardFields.Children.Add(imageControl);
 
-                this.UploadToImgur(e.ChosenPhoto);
+                byte[] buffer = new byte[16 * 1024];
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    int read = 0;
+                    while ((read = e.ChosenPhoto.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        stream.Write(buffer, 0, read);
+                    }
+
+                    this.UploadToImgur(stream.ToArray());
+                }
             }
         }
 
-        private void UploadToImgur(Stream chosenPhoto)
+        public void UploadToImgur(byte[] content, Action<bool> onCompletion = null)
         {
-            var w = new WebClient();
+            string apiKey = "8fdb6a32174203e";
 
-            var values = new NameValueCollection
-{
-{"image", Convert.ToBase64String(File.ReadAllBytes(xOut))}
-//I only needed to send the image, if you want to send other values, just add them here
-};
+            string BOUNDARY = Guid.NewGuid().ToString();
+            string HEADER = string.Format("--{0}", BOUNDARY);
+            string FOOTER = string.Format("--{0}--", BOUNDARY);
 
-            w.Headers.Add("Authorization", "Client-ID " + ClientId);
-            byte[] response = w.UploadValues("https://api.imgur.com/3/upload.xml", values);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.imgur.com/3/image");
+            request.Method = "POST";
+            request.Headers["Authorization"] = "Client-ID " + apiKey;
+            request.ContentType = "multipart/form-data, boundary=" + BOUNDARY;
 
-            //now process response as you'd like. the link is encapsulated by <link></link> in the response.
+            StringBuilder builder = new StringBuilder();
+            string base64string = Convert.ToBase64String(content);
 
+            builder.AppendLine(HEADER);
+            builder.AppendLine("Content-Disposition: form-data; name=\"image\"");
+            builder.AppendLine();
+            builder.AppendLine(base64string);
+            builder.AppendLine(FOOTER);
 
-            MemoryStream memoryStream = new MemoryStream();
-            chosenPhoto.CopyTo(memoryStream);
+            byte[] bData = Encoding.UTF8.GetBytes(builder.ToString());
 
-            byte[] imageData = memoryStream.ToArray();
-
-            string postData = @"key=13b3346e1bd07a47346fd85b523fdd9cba7a1977&image=" + Convert.ToBase64String(imageData);
-
-            WebClient wc = new WebClient();
-            Uri u = new Uri("http://api.imgur.com/2/upload.xml");
-            wc.UploadStringCompleted += new UploadStringCompletedEventHandler(wc_OpenWriteCompleted);
-            wc.UploadStringAsync(u, postData);
-        }
-
-        private void wc_OpenWriteCompleted(object sender, UploadStringCompletedEventArgs e)
-        {
-            if (e.Error == null)
+            request.BeginGetRequestStream((result) =>
             {
-                string s = e.Result.ToString();
-                MessageBox.Show(s);
-            }
+                using (Stream s = request.EndGetRequestStream(result))
+                {
+                    s.Write(bData, 0, bData.Length);
+                }
+
+                request.BeginGetResponse((respResult) =>
+                {
+                    try
+                    {
+                        HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(respResult);
+                        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                        {
+                            string jsonContent = reader.ReadToEnd();
+                            ImgurData imageData = JsonConvert.DeserializeObject<ImgurData>(jsonContent);
+
+                            if (imageData != null)
+                                imageUrl = imageData.Image.Link;
+
+                            Debug.WriteLine(jsonContent);
+                        }
+                    }
+                    catch (WebException ex)
+                    {
+                        using (StreamReader reader = new StreamReader(ex.Response.GetResponseStream()))
+                        {
+                            Debug.WriteLine(reader.ReadToEnd());
+                        }
+                    }
+                }, null);
+            }, null);
         }
     }
 }

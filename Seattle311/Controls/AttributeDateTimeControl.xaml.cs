@@ -14,6 +14,14 @@ namespace Seattle311.Controls
     {
         public Seattle311.API.Models.Attribute AttributeData { get; set; }
 
+        public DateTime Value
+        {
+            get
+            {
+                return this.dtpValue.Value.Value;
+            }
+        }
+
         public AttributeDateTimeControl()
         {
             InitializeComponent();

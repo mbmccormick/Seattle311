@@ -14,6 +14,14 @@ namespace Seattle311.Controls
     {
         public Seattle311.API.Models.Attribute AttributeData { get; set; }
 
+        public string Value
+        {
+            get
+            {
+                return this.txtValue.Text;
+            }
+        }
+
         public AttributeStringControl()
         {
             InitializeComponent();
