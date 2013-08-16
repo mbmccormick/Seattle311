@@ -199,7 +199,7 @@ namespace Seattle311.API
 
         public void GetServiceRequestFromToken(Action<ServiceRequest> callback, string token)
         {
-            HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/tokens/" + token + ".json") as HttpWebRequest;
+            HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/requests/" + token + ".json") as HttpWebRequest;
             request.Accept = "application/json";
 
             AsyncState state = new AsyncState();
@@ -214,12 +214,12 @@ namespace Seattle311.API
                 StreamReader sr = new StreamReader(stream, encoding);
 
                 JsonTextReader tr = new JsonTextReader(sr);
-                ServiceRequest data = new JsonSerializer().Deserialize<ServiceRequest>(tr);
+                List<ServiceRequest> data = new JsonSerializer().Deserialize<List<ServiceRequest>>(tr);
 
                 tr.Close();
                 sr.Close();
 
-                callback(data);
+                callback(data[0]);
 
             }, state);
         }

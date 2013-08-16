@@ -75,7 +75,7 @@ namespace Seattle311
                         {
                             this.txtTitle.Text = this.txtTitle.Text + " - " + name.ToUpper();
                         }
-                        
+
                         if (CurrentService.attributes != null)
                         {
                             foreach (Seattle311.API.Models.Attribute item in CurrentService.attributes.OrderBy(z => z.order))
@@ -158,12 +158,6 @@ namespace Seattle311
 
         private void submit_Click(object sender, EventArgs e)
         {
-            if (imageUrl == null)
-            {
-                if (MessageBox.Show("Are you sure you want to submit this Service Request without attaching a picture?", "Attach Picture", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
-                    return;
-            }
-
             ServiceRequest request = new ServiceRequest();
 
             request.service_code = CurrentService.service_code;
@@ -177,6 +171,14 @@ namespace Seattle311
                 try
                 {
                     AttributeDateTimeControl attribute = control as AttributeDateTimeControl;
+
+                    if (attribute.AttributeData.required == true &&
+                        attribute.Value.ToString().Length == 0)
+                    {
+                        MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
+                        return;
+                    }
+
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value.ToString());
                 }
                 catch (Exception ex)
@@ -195,6 +197,14 @@ namespace Seattle311
                 try
                 {
                     AttributeNumberControl attribute = control as AttributeNumberControl;
+
+                    if (attribute.AttributeData.required == true &&
+                        attribute.Value.ToString().Length == 0)
+                    {
+                        MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
+                        return;
+                    }
+
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value.ToString());
                 }
                 catch (Exception ex)
@@ -204,6 +214,14 @@ namespace Seattle311
                 try
                 {
                     AttributeSingleValueListControl attribute = control as AttributeSingleValueListControl;
+
+                    if (attribute.AttributeData.required == true &&
+                        attribute.Value.ToString().Length == 0)
+                    {
+                        MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
+                        return;
+                    }
+
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value);
                 }
                 catch (Exception ex)
@@ -213,6 +231,14 @@ namespace Seattle311
                 try
                 {
                     AttributeStringControl attribute = control as AttributeStringControl;
+
+                    if (attribute.AttributeData.required == true &&
+                        attribute.Value.ToString().Length == 0)
+                    {
+                        MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
+                        return;
+                    }
+
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value);
                 }
                 catch (Exception ex)
@@ -222,6 +248,14 @@ namespace Seattle311
                 try
                 {
                     AttributeTextControl attribute = control as AttributeTextControl;
+
+                    if (attribute.AttributeData.required == true &&
+                        attribute.Value.ToString().Length == 0)
+                    {
+                        MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
+                        return;
+                    }
+
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value);
                 }
                 catch (Exception ex)
@@ -229,15 +263,14 @@ namespace Seattle311
                 }
             }
 
-            App.Seattle311Client.CreateServiceRequest((result) =>
+            App.Seattle311Client.CreateServiceRequest((result1) =>
             {
                 SmartDispatcher.BeginInvoke(() =>
                 {
-                    MessageBox.Show("Service Request " + result.token + " was created successfully.");
+                    MessageBox.Show("Your Service Request was submitted successfully.", "Success", MessageBoxButton.OK);
 
                     NavigationService.GoBack();
                 });
-
             }, request);
         }
 

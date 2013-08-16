@@ -89,6 +89,7 @@
     <Compile Include="Models\Service.cs" />
     <Compile Include="Models\ServiceDefinition.cs" />
     <Compile Include="Models\ServiceRequest.cs" />
+    <Compile Include="Models\ServiceRequestID.cs" />
     <Compile Include="Models\ServiceRequestToken.cs" />
     <Compile Include="ServiceClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
