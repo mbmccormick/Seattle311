@@ -32,6 +32,10 @@ namespace Seattle311
             Seattle311Client = new ServiceClient("test311request-cityofchicago-org-aik24htrwt73.runscope.net", "30d67e348eed17834cded54d730fdeda");
             // Seattle311Client = new ServiceClient("servicerequest-qa.seattle.gov", "74187328b9dd2f1c7d0d82485d9523c4"); // development
             // Seattle311Client = new ServiceClient("servicerequest.seattle.gov", "c047fae2a21cde1304f6b733b54b9e02"); // production
+
+            Seattle311Client.ImgurServerAddress = "api-imgur-com-aik24htrwt73.runscope.net";
+            // Seattle311Client.ImgurServerAddress = "api.imgur.com";
+            Seattle311Client.ImgurAPIKey = "8fdb6a32174203e";
         }
 
         private void Application_Launching(object sender, LaunchingEventArgs e)
@@ -82,7 +86,7 @@ namespace Seattle311
 
             // Create the frame but don't set it as RootVisual yet; this allows the splash
             // screen to remain active until the application is ready to render.
-            RootFrame = new PhoneApplicationFrame();
+            RootFrame = new TransitionFrame();
             RootFrame.Navigated += CompleteInitializePhoneApplication;
 
             // Handle navigation failures

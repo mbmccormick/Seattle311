@@ -35,8 +35,6 @@ namespace Seattle311
         ApplicationBarIconButton submit;
         ApplicationBarIconButton attach;
 
-        CameraCaptureTask cameraCaptureTask;
-
         string imageUrl = null;
 
         public NewServiceRequestPage()
@@ -150,10 +148,12 @@ namespace Seattle311
 
         private void attach_Click(object sender, EventArgs e)
         {
-            cameraCaptureTask = new CameraCaptureTask();
-            cameraCaptureTask.Completed += cameraCaptureTask_Completed;
+            PhotoChooserTask task = new PhotoChooserTask();
 
-            cameraCaptureTask.Show();
+            task.ShowCamera = true;
+            task.Completed += PhotoChooserTask_Completed;
+
+            task.Show();
         }
 
         private void submit_Click(object sender, EventArgs e)
@@ -165,6 +165,8 @@ namespace Seattle311
             request.@long = locationService.Position.Location.Longitude;
             request.description = this.txtDescription.Text;
             request.media_url = imageUrl;
+
+            #region Parse Attributes
 
             foreach (UserControl control in this.stkFormFields.Children)
             {
@@ -263,6 +265,8 @@ namespace Seattle311
                 }
             }
 
+            #endregion
+
             App.Seattle311Client.CreateServiceRequest((result1) =>
             {
                 SmartDispatcher.BeginInvoke(() =>
@@ -283,90 +287,36 @@ namespace Seattle311
             }
         }
 
-        private void cameraCaptureTask_Completed(object sender, PhotoResult e)
+        private void PhotoChooserTask_Completed(object sender, PhotoResult e)
         {
             if (e.TaskResult == TaskResult.OK)
             {
-                BitmapImage bmp = new BitmapImage();
-                bmp.SetSource(e.ChosenPhoto);
+                BitmapImage photo = new BitmapImage();
+                photo.SetSource(e.ChosenPhoto);
 
-                Image imageControl = new Image();
-                imageControl.Margin = new Thickness(12, 0, 12, 18);
-                imageControl.Source = bmp;
+                Image imgPhoto = new Image();
+                imgPhoto.Margin = new Thickness(12, 0, 12, 18);
+                imgPhoto.Source = photo;
 
-                this.stkStandardFields.Children.Add(imageControl);
+                this.stkStandardFields.Children.Add(imgPhoto);
 
-                byte[] buffer = new byte[16 * 1024];
-
+                byte[] data = null;
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    int read = 0;
-                    while ((read = e.ChosenPhoto.Read(buffer, 0, buffer.Length)) > 0)
-                    {
-                        stream.Write(buffer, 0, read);
-                    }
+                    WriteableBitmap bitmap = new WriteableBitmap(photo);
 
-                    this.UploadToImgur(stream.ToArray());
+                    bitmap.SaveJpeg(stream, bitmap.PixelWidth, bitmap.PixelHeight, 0, 100);
+                    stream.Seek(0, SeekOrigin.Begin);
+
+                    data = stream.GetBuffer();
                 }
+
+                App.Seattle311Client.UploadImage((result) =>
+                {
+                    imageUrl = result.Image.Link;
+
+                }, data);
             }
-        }
-
-        public void UploadToImgur(byte[] content, Action<bool> onCompletion = null)
-        {
-            string apiKey = "8fdb6a32174203e";
-
-            string BOUNDARY = Guid.NewGuid().ToString();
-            string HEADER = string.Format("--{0}", BOUNDARY);
-            string FOOTER = string.Format("--{0}--", BOUNDARY);
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.imgur.com/3/image");
-            request.Method = "POST";
-            request.Headers["Authorization"] = "Client-ID " + apiKey;
-            request.ContentType = "multipart/form-data, boundary=" + BOUNDARY;
-
-            StringBuilder builder = new StringBuilder();
-            string base64string = Convert.ToBase64String(content);
-
-            builder.AppendLine(HEADER);
-            builder.AppendLine("Content-Disposition: form-data; name=\"image\"");
-            builder.AppendLine();
-            builder.AppendLine(base64string);
-            builder.AppendLine(FOOTER);
-
-            byte[] bData = Encoding.UTF8.GetBytes(builder.ToString());
-
-            request.BeginGetRequestStream((result) =>
-            {
-                using (Stream s = request.EndGetRequestStream(result))
-                {
-                    s.Write(bData, 0, bData.Length);
-                }
-
-                request.BeginGetResponse((respResult) =>
-                {
-                    try
-                    {
-                        HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(respResult);
-                        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-                        {
-                            string jsonContent = reader.ReadToEnd();
-                            ImgurData imageData = JsonConvert.DeserializeObject<ImgurData>(jsonContent);
-
-                            if (imageData != null)
-                                imageUrl = imageData.Image.Link;
-
-                            Debug.WriteLine(jsonContent);
-                        }
-                    }
-                    catch (WebException ex)
-                    {
-                        using (StreamReader reader = new StreamReader(ex.Response.GetResponseStream()))
-                        {
-                            Debug.WriteLine(reader.ReadToEnd());
-                        }
-                    }
-                }, null);
-            }, null);
         }
     }
 }

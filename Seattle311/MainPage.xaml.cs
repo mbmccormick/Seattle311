@@ -23,6 +23,9 @@ namespace Seattle311
 
         #endregion
 
+        private bool isServicesLoaded = false;
+        private bool isRecentRequestsLoaded = false;
+
         public MainPage()
         {
             InitializeComponent();
@@ -35,12 +38,16 @@ namespace Seattle311
         {
             if (e.IsNavigationInitiator == false)
             {
-                LoadData();
+                if (isServicesLoaded == false ||
+                    isRecentRequestsLoaded == false)
+                    LoadData();
             }
         }
 
         private void LoadData()
         {
+            this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+
             App.Seattle311Client.GetServices((result) =>
             {
                 SmartDispatcher.BeginInvoke(() =>
@@ -50,6 +57,12 @@ namespace Seattle311
                     foreach (Service item in result)
                     {
                         Services.Add(item);
+                    }
+
+                    if (isServicesLoaded &&
+                        isRecentRequestsLoaded)
+                    {
+                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
                     }
                 });
             });
@@ -63,6 +76,12 @@ namespace Seattle311
                     foreach (ServiceRequest item in result)
                     {
                         ServiceRequests.Add(item);
+                    }
+
+                    if (isServicesLoaded &&
+                        isRecentRequestsLoaded)
+                    {
+                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
                     }
                 });
             });

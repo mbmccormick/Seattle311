@@ -15,6 +15,9 @@ namespace Seattle311.API
         string _serverAddress = null;
         string _apiKey = null;
 
+        public string ImgurServerAddress { get; set; }
+        public string ImgurAPIKey { get; set; }
+
         public ServiceClient(string serverAddress, string apiKey)
         {
             _serverAddress = serverAddress;
@@ -123,6 +126,9 @@ namespace Seattle311.API
                 }
             }
 
+            if (data.media_url != null)
+                postData.Append("media_url=" + HttpUtility.UrlEncode(data.media_url) + "&");
+
             postData.Append("lat=" + HttpUtility.UrlEncode(data.lat.ToString()) + "&");
             postData.Append("long=" + HttpUtility.UrlEncode(data.@long.ToString()));
 
@@ -222,6 +228,51 @@ namespace Seattle311.API
                 callback(data[0]);
 
             }, state);
+        }
+
+        public void UploadImage(Action<ImgurData> callback, byte[] data)
+        {
+            HttpWebRequest request = HttpWebRequest.Create("https://" + ImgurServerAddress + "/3/upload") as HttpWebRequest;
+            request.Accept = "application/json";
+
+            request.Headers["Authorization"] = "Client-ID " + ImgurAPIKey;
+
+            byte[] payload = null;
+
+            string postData = "image=" + Convert.ToBase64String(data);
+
+            UTF8Encoding encoding1 = new UTF8Encoding();
+            payload = encoding1.GetBytes(postData.ToString());
+
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentLength = payload.Length;
+
+            request.BeginGetRequestStream((result1) =>
+            {
+                using (Stream stream = request.EndGetRequestStream(result1))
+                {
+                    stream.Write(payload, 0, payload.Length);
+                }
+
+                request.BeginGetResponse((result2) =>
+                {
+                    var response = request.EndGetResponse(result2);
+
+                    Stream stream = response.GetResponseStream();
+                    UTF8Encoding encoding2 = new UTF8Encoding();
+                    StreamReader sr = new StreamReader(stream, encoding2);
+
+                    JsonTextReader tr = new JsonTextReader(sr);
+                    ImgurData returnValue = new JsonSerializer().Deserialize<ImgurData>(tr);
+
+                    tr.Close();
+                    sr.Close();
+
+                    callback(returnValue);
+
+                }, null);
+            }, null);
         }
     }
 }

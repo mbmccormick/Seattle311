@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Seattle311.Common
+namespace Seattle311.API.Models
 {
     public class ImgurData
     {

@@ -93,8 +93,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Common\ImgurData.cs" />
-    <Compile Include="Common\ImgurImageData.cs" />
     <Compile Include="Common\SmartDispatcher.cs" />
     <Compile Include="Controls\AttributeDateTimeControl.xaml.cs">
       <DependentUpon>AttributeDateTimeControl.xaml</DependentUpon>
