@@ -88,6 +88,7 @@
     <Compile Include="Models\ErrorMessage.cs" />
     <Compile Include="Models\ImgurData.cs" />
     <Compile Include="Models\ImgurImageData.cs" />
+    <Compile Include="Models\Response.cs" />
     <Compile Include="Models\Service.cs" />
     <Compile Include="Models\ServiceDefinition.cs" />
     <Compile Include="Models\ServiceRequest.cs" />

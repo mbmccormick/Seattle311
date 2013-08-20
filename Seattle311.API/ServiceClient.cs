@@ -105,9 +105,8 @@ namespace Seattle311.API
             }, state);
         }
 
-        public void CreateServiceRequest(Action<ServiceRequestToken> callback, ServiceRequest data)
+        public void CreateServiceRequest(Action<Response<ServiceRequestToken>> callback, ServiceRequest data)
         {
-            // HttpWebRequest request = HttpWebRequest.Create("http://requestb.in/1fwa0mq1") as HttpWebRequest;
             HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/requests.json?api_key=" + _apiKey) as HttpWebRequest;
             request.Accept = "application/json";
 
@@ -148,28 +147,40 @@ namespace Seattle311.API
 
                 request.BeginGetResponse((result2) =>
                 {
-                    var response = request.EndGetResponse(result2);
-
-                    Stream stream = response.GetResponseStream();
-                    UTF8Encoding encoding2 = new UTF8Encoding();
-                    StreamReader sr = new StreamReader(stream, encoding2);
-
                     try
                     {
+                        var response = request.EndGetResponse(result2);
+
+                        Stream stream = response.GetResponseStream();
+                        UTF8Encoding encoding2 = new UTF8Encoding();
+                        StreamReader sr = new StreamReader(stream, encoding2);
+
                         JsonTextReader tr = new JsonTextReader(sr);
                         List<ServiceRequestToken> returnValue = new JsonSerializer().Deserialize<List<ServiceRequestToken>>(tr);
 
                         tr.Close();
                         sr.Close();
 
-                        callback(returnValue[0]);
+                        Response<ServiceRequestToken> result = new Response<ServiceRequestToken>();
+                        result.ResponseObject = returnValue[0];
+
+                        callback(result);
                     }
-                    catch (JsonSerializationException ex)
+                    catch (WebException ex)
                     {
+                        var response = ex.Response;
+
+                        Stream stream = response.GetResponseStream();
+                        UTF8Encoding encoding2 = new UTF8Encoding();
+                        StreamReader sr = new StreamReader(stream, encoding2);
+
                         JsonTextReader tr = new JsonTextReader(sr);
                         List<ErrorMessage> returnValue = new JsonSerializer().Deserialize<List<ErrorMessage>>(tr);
 
-                        throw new Exception("Error " + returnValue[0].code + ": " + returnValue[0].description);
+                        Response<ServiceRequestToken> result = new Response<ServiceRequestToken>();
+                        result.ErrorMessages = returnValue;
+
+                        callback(result);
                     }
 
                 }, null);
@@ -237,22 +248,20 @@ namespace Seattle311.API
 
             request.Headers["Authorization"] = "Client-ID " + ImgurAPIKey;
 
-            byte[] payload = null;
-
             string postData = "image=" + Convert.ToBase64String(data);
-
-            UTF8Encoding encoding1 = new UTF8Encoding();
-            payload = encoding1.GetBytes(postData.ToString());
 
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = payload.Length;
 
             request.BeginGetRequestStream((result1) =>
             {
                 using (Stream stream = request.EndGetRequestStream(result1))
                 {
-                    stream.Write(payload, 0, payload.Length);
+                    using (StreamWriter writer = new StreamWriter(stream))
+                    {
+                        writer.Write(postData);
+                        writer.Flush();
+                    }
                 }
 
                 request.BeginGetResponse((result2) =>

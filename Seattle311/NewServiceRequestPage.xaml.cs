@@ -59,6 +59,8 @@ namespace Seattle311
 
         private void LoadData()
         {
+            this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+
             string id;
             if (NavigationContext.QueryString.TryGetValue("id", out id))
             {
@@ -124,6 +126,8 @@ namespace Seattle311
                         }
 
                         isLoaded = true;
+
+                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
                     });
                 }, id);
             }
@@ -158,6 +162,11 @@ namespace Seattle311
 
         private void submit_Click(object sender, EventArgs e)
         {
+            SmartDispatcher.BeginInvoke(() =>
+            {
+                this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+            });
+
             ServiceRequest request = new ServiceRequest();
 
             request.service_code = CurrentService.service_code;
@@ -167,6 +176,8 @@ namespace Seattle311
             request.media_url = imageUrl;
 
             #region Parse Attributes
+
+            bool validationSuccess = true;
 
             foreach (UserControl control in this.stkFormFields.Children)
             {
@@ -178,7 +189,7 @@ namespace Seattle311
                         attribute.Value.ToString().Length == 0)
                     {
                         MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
-                        return;
+                        validationSuccess = false;
                     }
 
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value.ToString());
@@ -204,7 +215,7 @@ namespace Seattle311
                         attribute.Value.ToString().Length == 0)
                     {
                         MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
-                        return;
+                        validationSuccess = false;
                     }
 
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value.ToString());
@@ -221,7 +232,7 @@ namespace Seattle311
                         attribute.Value.ToString().Length == 0)
                     {
                         MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
-                        return;
+                        validationSuccess = false;
                     }
 
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value);
@@ -238,7 +249,7 @@ namespace Seattle311
                         attribute.Value.ToString().Length == 0)
                     {
                         MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
-                        return;
+                        validationSuccess = false;
                     }
 
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value);
@@ -255,13 +266,19 @@ namespace Seattle311
                         attribute.Value.ToString().Length == 0)
                     {
                         MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
-                        return;
+                        validationSuccess = false;
                     }
 
                     request.attributes.Add(attribute.AttributeData.code, attribute.Value);
                 }
                 catch (Exception ex)
                 {
+                }
+
+                if (validationSuccess == false)
+                {
+                    this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                    return;
                 }
             }
 
@@ -271,9 +288,17 @@ namespace Seattle311
             {
                 SmartDispatcher.BeginInvoke(() =>
                 {
-                    MessageBox.Show("Your Service Request was submitted successfully.", "Success", MessageBoxButton.OK);
+                    this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
 
-                    NavigationService.GoBack();
+                    if (result1.ResponseObject != null)
+                    {
+                        MessageBox.Show("Your service request was submitted successfully!", "Success", MessageBoxButton.OK);
+                        NavigationService.GoBack();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error " + result1.ErrorMessages[0].code + ": " + result1.ErrorMessages[0].description, "Failure", MessageBoxButton.OK);
+                    }
                 });
             }, request);
         }
@@ -291,6 +316,8 @@ namespace Seattle311
         {
             if (e.TaskResult == TaskResult.OK)
             {
+                this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+
                 BitmapImage photo = new BitmapImage();
                 photo.SetSource(e.ChosenPhoto);
 
@@ -313,8 +340,12 @@ namespace Seattle311
 
                 App.Seattle311Client.UploadImage((result) =>
                 {
-                    imageUrl = result.Image.Link;
+                    SmartDispatcher.BeginInvoke(() =>
+                    {
+                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
 
+                        imageUrl = result.Image.Link;
+                    });
                 }, data);
             }
         }

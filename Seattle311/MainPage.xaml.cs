@@ -59,6 +59,8 @@ namespace Seattle311
                         Services.Add(item);
                     }
 
+                    isServicesLoaded = true;
+
                     if (isServicesLoaded &&
                         isRecentRequestsLoaded)
                     {
@@ -77,6 +79,8 @@ namespace Seattle311
                     {
                         ServiceRequests.Add(item);
                     }
+
+                    isRecentRequestsLoaded = true;
 
                     if (isServicesLoaded &&
                         isRecentRequestsLoaded)
