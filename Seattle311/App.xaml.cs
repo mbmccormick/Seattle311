@@ -31,8 +31,8 @@ namespace Seattle311
 
             if (Debugger.IsAttached == true)
             {
-                Seattle311Client = new ServiceClient("test311request-cityofchicago-org-aik24htrwt73.runscope.net", "30d67e348eed17834cded54d730fdeda");
-                // Seattle311Client = new ServiceClient("servicerequest--qa-seattle-gov-aik24htrwt73.runscope.net", "74187328b9dd2f1c7d0d82485d9523c4"); // development
+                // Seattle311Client = new ServiceClient("test311request-cityofchicago-org-aik24htrwt73.runscope.net", "30d67e348eed17834cded54d730fdeda");
+                Seattle311Client = new ServiceClient("servicerequest--qa-seattle-gov-aik24htrwt73.runscope.net", "74187328b9dd2f1c7d0d82485d9523c4"); // development
                 // Seattle311Client = new ServiceClient("servicerequest-seattle-gov-aik24htrwt73.runscope.net", "c047fae2a21cde1304f6b733b54b9e02"); // production
 
                 Seattle311Client.ImgurServerAddress = "api-imgur-com-aik24htrwt73.runscope.net";
@@ -40,8 +40,8 @@ namespace Seattle311
             }
             else
             {
-                Seattle311Client = new ServiceClient("test311request.cityofchicago.org", "30d67e348eed17834cded54d730fdeda");
-                // Seattle311Client = new ServiceClient("servicerequest-qa.seattle.gov", "74187328b9dd2f1c7d0d82485d9523c4"); // development
+                // Seattle311Client = new ServiceClient("test311request.cityofchicago.org", "30d67e348eed17834cded54d730fdeda");
+                Seattle311Client = new ServiceClient("servicerequest-qa.seattle.gov", "74187328b9dd2f1c7d0d82485d9523c4"); // development
                 // Seattle311Client = new ServiceClient("servicerequest.seattle.gov", "c047fae2a21cde1304f6b733b54b9e02"); // production
 
                 Seattle311Client.ImgurServerAddress = "api.imgur.com";
