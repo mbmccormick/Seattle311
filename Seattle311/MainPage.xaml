@@ -48,6 +48,11 @@
 
     </Grid>
 
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
             <toolkit:NavigationInTransition.Backward>

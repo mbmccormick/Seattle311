@@ -28,12 +28,12 @@ namespace Seattle311
 
         #endregion
 
+        ApplicationBarIconButton submit;
+        ApplicationBarIconButton attach;
+
         private GeoCoordinateWatcher locationService = null;
 
         private bool isLoaded = false;
-
-        ApplicationBarIconButton submit;
-        ApplicationBarIconButton attach;
 
         string imageUrl = null;
 
@@ -45,6 +45,23 @@ namespace Seattle311
             locationService.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationService_PositionChanged);
 
             this.BuildApplicationBar();
+        }
+
+        private void BuildApplicationBar()
+        {
+            submit = new ApplicationBarIconButton();
+            submit.IconUri = new Uri("/Resources/submit.png", UriKind.RelativeOrAbsolute);
+            submit.Text = "submit";
+            submit.Click += submit_Click;
+
+            attach = new ApplicationBarIconButton();
+            attach.IconUri = new Uri("/Resources/attach.png", UriKind.RelativeOrAbsolute);
+            attach.Text = "attach";
+            attach.Click += attach_Click;
+
+            // build application bar
+            ApplicationBar.Buttons.Add(submit);
+            ApplicationBar.Buttons.Add(attach);
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -133,25 +150,10 @@ namespace Seattle311
             }
         }
 
-        private void BuildApplicationBar()
-        {
-            submit = new ApplicationBarIconButton();
-            submit.IconUri = new Uri("/Resources/submit.png", UriKind.RelativeOrAbsolute);
-            submit.Text = "submit";
-            submit.Click += submit_Click;
-
-            attach = new ApplicationBarIconButton();
-            attach.IconUri = new Uri("/Resources/attach.png", UriKind.RelativeOrAbsolute);
-            attach.Text = "attach";
-            attach.Click += attach_Click;
-
-            // build application bar
-            ApplicationBar.Buttons.Add(submit);
-            ApplicationBar.Buttons.Add(attach);
-        }
-
         private void attach_Click(object sender, EventArgs e)
         {
+            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+
             PhotoChooserTask task = new PhotoChooserTask();
 
             task.ShowCamera = true;
@@ -160,12 +162,47 @@ namespace Seattle311
             task.Show();
         }
 
-        private void submit_Click(object sender, EventArgs e)
+        private void PhotoChooserTask_Completed(object sender, PhotoResult e)
         {
-            SmartDispatcher.BeginInvoke(() =>
+            if (e.TaskResult == TaskResult.OK)
             {
                 this.prgLoading.Visibility = System.Windows.Visibility.Visible;
-            });
+
+                BitmapImage photo = new BitmapImage();
+                photo.SetSource(e.ChosenPhoto);
+
+                Image imgPhoto = new Image();
+                imgPhoto.Margin = new Thickness(12, 0, 12, 18);
+                imgPhoto.Source = photo;
+
+                this.stkStandardFields.Children.Add(imgPhoto);
+
+                byte[] data = null;
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    WriteableBitmap bitmap = new WriteableBitmap(photo);
+
+                    bitmap.SaveJpeg(stream, photo.PixelWidth, photo.PixelHeight, 0, 100);
+                    data = stream.ToArray();
+                }
+
+                App.Seattle311Client.UploadImage((result) =>
+                {
+                    SmartDispatcher.BeginInvoke(() =>
+                    {
+                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+
+                        imageUrl = result.Image.Link;
+                    });
+                }, data);
+            }
+        }
+
+        private void submit_Click(object sender, EventArgs e)
+        {
+            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+
+            this.prgLoading.Visibility = System.Windows.Visibility.Visible;
 
             ServiceRequest request = new ServiceRequest();
 
@@ -309,42 +346,6 @@ namespace Seattle311
                 e.Position.Location.IsUnknown == false)
             {
                 this.txtLocation.Text = e.Position.Location.Latitude.ToString() + ", " + e.Position.Location.Longitude.ToString();
-            }
-        }
-
-        private void PhotoChooserTask_Completed(object sender, PhotoResult e)
-        {
-            if (e.TaskResult == TaskResult.OK)
-            {
-                this.prgLoading.Visibility = System.Windows.Visibility.Visible;
-
-                BitmapImage photo = new BitmapImage();
-                photo.SetSource(e.ChosenPhoto);
-
-                Image imgPhoto = new Image();
-                imgPhoto.Margin = new Thickness(12, 0, 12, 18);
-                imgPhoto.Source = photo;
-
-                this.stkStandardFields.Children.Add(imgPhoto);
-
-                byte[] data = null;
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    WriteableBitmap bitmap = new WriteableBitmap(photo);
-
-                    bitmap.SaveJpeg(stream, photo.PixelWidth, photo.PixelHeight, 0, 100);
-                    data = stream.ToArray();
-                }
-
-                App.Seattle311Client.UploadImage((result) =>
-                {
-                    SmartDispatcher.BeginInvoke(() =>
-                    {
-                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
-
-                        imageUrl = result.Image.Link;
-                    });
-                }, data);
             }
         }
     }

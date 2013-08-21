@@ -23,6 +23,8 @@ namespace Seattle311
 
         #endregion
 
+        ApplicationBarIconButton refresh;
+
         private bool isServicesLoaded = false;
         private bool isRecentRequestsLoaded = false;
 
@@ -32,6 +34,19 @@ namespace Seattle311
 
             Services = new ObservableCollection<Service>();
             ServiceRequests = new ObservableCollection<ServiceRequest>();
+
+            this.BuildApplicationBar();
+        }
+
+        private void BuildApplicationBar()
+        {
+            refresh = new ApplicationBarIconButton();
+            refresh.IconUri = new Uri("/Resources/refresh.png", UriKind.RelativeOrAbsolute);
+            refresh.Text = "refresh";
+            refresh.Click += refresh_Click;
+
+            // build application bar
+            ApplicationBar.Buttons.Add(refresh);
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -91,8 +106,20 @@ namespace Seattle311
             });
         }
 
+        private void refresh_Click(object sender, EventArgs e)
+        {
+            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+
+            isServicesLoaded = false;
+            isRecentRequestsLoaded = false;
+
+            LoadData();
+        }
+
         private void Item_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
+            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+
             Service item = ((FrameworkElement)sender).DataContext as Service;
 
             App.RootFrame.Navigate(new Uri("/NewServiceRequestPage.xaml?id=" + item.service_code + "&name=" + item.service_name, UriKind.Relative));
