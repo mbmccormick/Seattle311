@@ -22,7 +22,7 @@ namespace Seattle311
 {
     public partial class NewServiceRequestPage : PhoneApplicationPage
     {
-        #region List Properties
+        #region Service Properties
 
         public static ServiceDefinition CurrentService { get; set; }
 
@@ -321,6 +321,12 @@ namespace Seattle311
 
             #endregion
 
+            bool anonymous = false;
+
+            if (this.chkAnonymous.IsChecked.HasValue &&
+                this.chkAnonymous.IsChecked.Value == true)
+                anonymous = true;
+
             App.Seattle311Client.CreateServiceRequest((result1) =>
             {
                 SmartDispatcher.BeginInvoke(() =>
@@ -337,7 +343,7 @@ namespace Seattle311
                         MessageBox.Show("Error " + result1.ErrorMessages[0].code + ": " + result1.ErrorMessages[0].description, "Failure", MessageBoxButton.OK);
                     }
                 });
-            }, request);
+            }, request, anonymous);
         }
 
         private void locationService_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)

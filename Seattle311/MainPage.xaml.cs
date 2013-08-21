@@ -53,6 +53,10 @@ namespace Seattle311
         {
             if (e.IsNavigationInitiator == false)
             {
+                if (App.Seattle311Client.UserData.email == null ||
+                    App.Seattle311Client.UserData.email.Length == 0)
+                    SetUserProfile();
+
                 if (isServicesLoaded == false ||
                     isRecentRequestsLoaded == false)
                     LoadData();
@@ -103,6 +107,14 @@ namespace Seattle311
                         this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
                     }
                 });
+            });
+        }
+
+        public void SetUserProfile()
+        {
+            SmartDispatcher.BeginInvoke(() =>
+            {
+                NavigationService.Navigate(new Uri("/UserProfilePage.xaml", UriKind.Relative));
             });
         }
 

@@ -84,6 +84,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Common\AsyncState.cs" />
+    <Compile Include="Common\IsolatedStorageHelper.cs" />
     <Compile Include="Common\ServiceException.cs" />
     <Compile Include="Models\ErrorMessage.cs" />
     <Compile Include="Models\ImgurData.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Models\ServiceRequest.cs" />
     <Compile Include="Models\ServiceRequestID.cs" />
     <Compile Include="Models\ServiceRequestToken.cs" />
+    <Compile Include="Models\UserProfile.cs" />
     <Compile Include="ServiceClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

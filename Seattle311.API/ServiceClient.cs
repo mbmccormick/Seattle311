@@ -14,16 +14,23 @@ namespace Seattle311.API
 {
     public class ServiceClient
     {
-        string _serverAddress = null;
-        string _apiKey = null;
+        private string _serverAddress = null;
+        private string _apiKey = null;
 
         public string ImgurServerAddress { get; set; }
         public string ImgurAPIKey { get; set; }
+
+        public UserProfile UserData { get; set; }
 
         public ServiceClient(string serverAddress, string apiKey)
         {
             _serverAddress = serverAddress;
             _apiKey = apiKey;
+
+            UserData = IsolatedStorageHelper.GetObject<UserProfile>("UserData");
+
+            if (UserData == null)
+                UserData = new UserProfile();
         }
 
         public void GetServices(Action<List<Service>> callback)
@@ -90,7 +97,7 @@ namespace Seattle311.API
             });
         }
 
-        public void CreateServiceRequest(Action<Response<ServiceRequestToken>> callback, ServiceRequest data)
+        public void CreateServiceRequest(Action<Response<ServiceRequestToken>> callback, ServiceRequest data, bool anonymous)
         {
             RestClient client = new RestClient("http://" + _serverAddress);
 
@@ -111,6 +118,16 @@ namespace Seattle311.API
                 {
                     request.AddParameter("attribute[" + attribute.Key + "]", attribute.Value, ParameterType.GetOrPost);
                 }
+            }
+
+            if (anonymous == false)
+            {
+                request.AddParameter("device_id", UserData.device_id, ParameterType.GetOrPost);
+                request.AddParameter("account_id", UserData.account_id, ParameterType.GetOrPost);
+                request.AddParameter("first_name", UserData.first_name, ParameterType.GetOrPost);
+                request.AddParameter("last_name", UserData.last_name, ParameterType.GetOrPost);
+                request.AddParameter("email", UserData.email, ParameterType.GetOrPost);
+                request.AddParameter("phone", UserData.phone, ParameterType.GetOrPost);
             }
 
             client.ExecuteAsync(request, (response) =>
@@ -212,6 +229,11 @@ namespace Seattle311.API
 
                 callback(returnValue);
             });
+        }
+
+        public void SaveData()
+        {
+            IsolatedStorageHelper.SaveObject<UserProfile>("UserData", UserData);
         }
     }
 }

@@ -9,6 +9,8 @@ using Microsoft.Phone.Shell;
 using Seattle311.Resources;
 using Seattle311.API;
 using Seattle311.Common;
+using Seattle311.API.Models;
+using System.Text;
 
 namespace Seattle311
 {
@@ -31,8 +33,8 @@ namespace Seattle311
 
             if (Debugger.IsAttached == true)
             {
-                // Seattle311Client = new ServiceClient("test311request-cityofchicago-org-aik24htrwt73.runscope.net", "30d67e348eed17834cded54d730fdeda");
-                Seattle311Client = new ServiceClient("servicerequest--qa-seattle-gov-aik24htrwt73.runscope.net", "74187328b9dd2f1c7d0d82485d9523c4"); // development
+                Seattle311Client = new ServiceClient("test311request-cityofchicago-org-aik24htrwt73.runscope.net", "30d67e348eed17834cded54d730fdeda");
+                // Seattle311Client = new ServiceClient("servicerequest--qa-seattle-gov-aik24htrwt73.runscope.net", "74187328b9dd2f1c7d0d82485d9523c4"); // development
                 // Seattle311Client = new ServiceClient("servicerequest-seattle-gov-aik24htrwt73.runscope.net", "c047fae2a21cde1304f6b733b54b9e02"); // production
 
                 Seattle311Client.ImgurServerAddress = "api-imgur-com-aik24htrwt73.runscope.net";
@@ -40,13 +42,16 @@ namespace Seattle311
             }
             else
             {
-                // Seattle311Client = new ServiceClient("test311request.cityofchicago.org", "30d67e348eed17834cded54d730fdeda");
-                Seattle311Client = new ServiceClient("servicerequest-qa.seattle.gov", "74187328b9dd2f1c7d0d82485d9523c4"); // development
+                Seattle311Client = new ServiceClient("test311request.cityofchicago.org", "30d67e348eed17834cded54d730fdeda");
+                // Seattle311Client = new ServiceClient("servicerequest-qa.seattle.gov", "74187328b9dd2f1c7d0d82485d9523c4"); // development
                 // Seattle311Client = new ServiceClient("servicerequest.seattle.gov", "c047fae2a21cde1304f6b733b54b9e02"); // production
 
                 Seattle311Client.ImgurServerAddress = "api.imgur.com";
                 Seattle311Client.ImgurAPIKey = "8fdb6a32174203e";
             }
+
+            Seattle311Client.UserData.device_id = ExtendedPropertiesHelper.DeviceUniqueID;
+            Seattle311Client.UserData.account_id = ExtendedPropertiesHelper.WindowsLiveAnonymousID;
         }
 
         private void Application_Launching(object sender, LaunchingEventArgs e)
@@ -60,10 +65,12 @@ namespace Seattle311
 
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
+            Seattle311Client.SaveData();
         }
 
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
+            Seattle311Client.SaveData();
         }
 
         private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
