@@ -7,6 +7,8 @@ using Seattle311.API.Models;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Json;
+using System.Diagnostics;
+using RestSharp;
 
 namespace Seattle311.API
 {
@@ -26,19 +28,14 @@ namespace Seattle311.API
 
         public void GetServices(Action<List<Service>> callback)
         {
-            HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/services.json") as HttpWebRequest;
-            request.Accept = "application/json";
+            RestClient client = new RestClient("http://" + _serverAddress);
 
-            AsyncState state = new AsyncState();
-            state.request = request;
+            RestRequest request = new RestRequest("/open311/v2/services.json", Method.GET);
 
-            request.BeginGetResponse((result) =>
+            client.ExecuteAsync(request, (response) =>
             {
-                var response = request.EndGetResponse(result);
-
-                Stream stream = response.GetResponseStream();
-                UTF8Encoding encoding = new UTF8Encoding();
-                StreamReader sr = new StreamReader(stream, encoding);
+                MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(response.Content));
+                StreamReader sr = new StreamReader(stream);
 
                 JsonTextReader tr = new JsonTextReader(sr);
                 List<Service> data = new JsonSerializer().Deserialize<List<Service>>(tr);
@@ -47,25 +44,20 @@ namespace Seattle311.API
                 sr.Close();
 
                 callback(data);
-
-            }, state);
+            });
         }
 
         public void GetServiceDefinition(Action<ServiceDefinition> callback, string serviceId)
         {
-            HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/services/" + serviceId + ".json") as HttpWebRequest;
-            request.Accept = "application/json";
+            RestClient client = new RestClient("http://" + _serverAddress);
 
-            AsyncState state = new AsyncState();
-            state.request = request;
+            RestRequest request = new RestRequest("/open311/v2/services/{id}.json", Method.GET);
+            request.AddUrlSegment("id", serviceId);
 
-            request.BeginGetResponse((result) =>
+            client.ExecuteAsync(request, (response) =>
             {
-                var response = request.EndGetResponse(result);
-
-                Stream stream = response.GetResponseStream();
-                UTF8Encoding encoding = new UTF8Encoding();
-                StreamReader sr = new StreamReader(stream, encoding);
+                MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(response.Content));
+                StreamReader sr = new StreamReader(stream);
 
                 JsonTextReader tr = new JsonTextReader(sr);
                 ServiceDefinition data = new JsonSerializer().Deserialize<ServiceDefinition>(tr);
@@ -74,25 +66,19 @@ namespace Seattle311.API
                 sr.Close();
 
                 callback(data);
-
-            }, state);
+            });
         }
 
         public void GetRecentServiceRequests(Action<List<ServiceRequest>> callback)
         {
-            HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/requests.json") as HttpWebRequest;
-            request.Accept = "application/json";
+            RestClient client = new RestClient("http://" + _serverAddress);
 
-            AsyncState state = new AsyncState();
-            state.request = request;
+            RestRequest request = new RestRequest("/open311/v2/requests.json", Method.GET);
 
-            request.BeginGetResponse((result) =>
+            client.ExecuteAsync(request, (response) =>
             {
-                var response = request.EndGetResponse(result);
-
-                Stream stream = response.GetResponseStream();
-                UTF8Encoding encoding = new UTF8Encoding();
-                StreamReader sr = new StreamReader(stream, encoding);
+                MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(response.Content));
+                StreamReader sr = new StreamReader(stream);
 
                 JsonTextReader tr = new JsonTextReader(sr);
                 List<ServiceRequest> data = new JsonSerializer().Deserialize<List<ServiceRequest>>(tr);
@@ -101,107 +87,77 @@ namespace Seattle311.API
                 sr.Close();
 
                 callback(data);
-
-            }, state);
+            });
         }
 
         public void CreateServiceRequest(Action<Response<ServiceRequestToken>> callback, ServiceRequest data)
         {
-            HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/requests.json?api_key=" + _apiKey) as HttpWebRequest;
-            request.Accept = "application/json";
+            RestClient client = new RestClient("http://" + _serverAddress);
 
-            byte[] payload = null;
+            RestRequest request = new RestRequest("/open311/v2/requests.json?api_key={key}", Method.POST);
+            request.AddUrlSegment("key", _apiKey);
 
-            StringBuilder postData = new StringBuilder();
+            request.AddParameter("service_code", data.service_code, ParameterType.GetOrPost);
+            request.AddParameter("description", data.description, ParameterType.GetOrPost);
+            request.AddParameter("lat", data.lat, ParameterType.GetOrPost);
+            request.AddParameter("long", data.@long, ParameterType.GetOrPost);
 
-            postData.Append("service_code=" + HttpUtility.UrlEncode(data.service_code) + "&");
-            postData.Append("description=" + HttpUtility.UrlEncode(data.description) + "&");
+            if (data.media_url != null)
+                request.AddParameter("media_url", data.media_url, ParameterType.GetOrPost);
 
             if (data.attributes != null)
             {
                 foreach (KeyValuePair<string, string> attribute in data.attributes)
                 {
-                    postData.Append("attribute[" + attribute.Key + "]=" + attribute.Value + "&");
+                    request.AddParameter("attribute[" + attribute.Key + "]", attribute.Value, ParameterType.GetOrPost);
                 }
             }
 
-            if (data.media_url != null)
-                postData.Append("media_url=" + HttpUtility.UrlEncode(data.media_url) + "&");
-
-            postData.Append("lat=" + HttpUtility.UrlEncode(data.lat.ToString()) + "&");
-            postData.Append("long=" + HttpUtility.UrlEncode(data.@long.ToString()));
-
-            UTF8Encoding encoding1 = new UTF8Encoding();
-            payload = encoding1.GetBytes(postData.ToString());
-
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = payload.Length;
-
-            request.BeginGetRequestStream((result1) =>
+            client.ExecuteAsync(request, (response) =>
             {
-                using (Stream stream = request.EndGetRequestStream(result1))
+                if (response.StatusCode == HttpStatusCode.Created)
                 {
-                    stream.Write(payload, 0, payload.Length);
+                    MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(response.Content));
+                    StreamReader sr = new StreamReader(stream);
+
+                    JsonTextReader tr = new JsonTextReader(sr);
+                    List<ServiceRequestToken> returnValue = new JsonSerializer().Deserialize<List<ServiceRequestToken>>(tr);
+
+                    tr.Close();
+                    sr.Close();
+
+                    Response<ServiceRequestToken> result = new Response<ServiceRequestToken>();
+                    result.ResponseObject = returnValue[0];
+
+                    callback(result);
                 }
-
-                request.BeginGetResponse((result2) =>
+                else
                 {
-                    try
-                    {
-                        var response = request.EndGetResponse(result2);
+                    MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(response.Content));
+                    StreamReader sr = new StreamReader(stream);
 
-                        Stream stream = response.GetResponseStream();
-                        UTF8Encoding encoding2 = new UTF8Encoding();
-                        StreamReader sr = new StreamReader(stream, encoding2);
+                    JsonTextReader tr = new JsonTextReader(sr);
+                    List<ErrorMessage> returnValue = new JsonSerializer().Deserialize<List<ErrorMessage>>(tr);
 
-                        JsonTextReader tr = new JsonTextReader(sr);
-                        List<ServiceRequestToken> returnValue = new JsonSerializer().Deserialize<List<ServiceRequestToken>>(tr);
+                    Response<ServiceRequestToken> result = new Response<ServiceRequestToken>();
+                    result.ErrorMessages = returnValue;
 
-                        tr.Close();
-                        sr.Close();
-
-                        Response<ServiceRequestToken> result = new Response<ServiceRequestToken>();
-                        result.ResponseObject = returnValue[0];
-
-                        callback(result);
-                    }
-                    catch (WebException ex)
-                    {
-                        var response = ex.Response;
-
-                        Stream stream = response.GetResponseStream();
-                        UTF8Encoding encoding2 = new UTF8Encoding();
-                        StreamReader sr = new StreamReader(stream, encoding2);
-
-                        JsonTextReader tr = new JsonTextReader(sr);
-                        List<ErrorMessage> returnValue = new JsonSerializer().Deserialize<List<ErrorMessage>>(tr);
-
-                        Response<ServiceRequestToken> result = new Response<ServiceRequestToken>();
-                        result.ErrorMessages = returnValue;
-
-                        callback(result);
-                    }
-
-                }, null);
-            }, null);
+                    callback(result);
+                }
+            });
         }
 
         public void GetServiceRequest(Action<ServiceRequest> callback, string serviceRequestId)
         {
-            HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/requests/" + serviceRequestId + ".json") as HttpWebRequest;
-            request.Accept = "application/json";
+            RestClient client = new RestClient("http://" + _serverAddress);
 
-            AsyncState state = new AsyncState();
-            state.request = request;
+            RestRequest request = new RestRequest("/open311/v2/requests/{id}.json", Method.GET);
+            request.AddUrlSegment("id", serviceRequestId);
 
-            request.BeginGetResponse((result) =>
+            client.ExecuteAsync(request, (response) =>
             {
-                var response = request.EndGetResponse(result);
-
-                Stream stream = response.GetResponseStream();
-                UTF8Encoding encoding = new UTF8Encoding();
-                StreamReader sr = new StreamReader(stream, encoding);
+                MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(response.Content));
+                StreamReader sr = new StreamReader(stream);
 
                 JsonTextReader tr = new JsonTextReader(sr);
                 ServiceRequest data = new JsonSerializer().Deserialize<ServiceRequest>(tr);
@@ -210,25 +166,20 @@ namespace Seattle311.API
                 sr.Close();
 
                 callback(data);
-
-            }, state);
+            });
         }
 
         public void GetServiceRequestFromToken(Action<ServiceRequest> callback, string token)
         {
-            HttpWebRequest request = HttpWebRequest.Create("http://" + _serverAddress + "/open311/v2/requests/" + token + ".json") as HttpWebRequest;
-            request.Accept = "application/json";
+            RestClient client = new RestClient("http://" + _serverAddress);
 
-            AsyncState state = new AsyncState();
-            state.request = request;
+            RestRequest request = new RestRequest("/open311/v2/requests/{id}.json", Method.GET);
+            request.AddUrlSegment("id", token);
 
-            request.BeginGetResponse((result) =>
+            client.ExecuteAsync(request, (response) =>
             {
-                var response = request.EndGetResponse(result);
-
-                Stream stream = response.GetResponseStream();
-                UTF8Encoding encoding = new UTF8Encoding();
-                StreamReader sr = new StreamReader(stream, encoding);
+                MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(response.Content));
+                StreamReader sr = new StreamReader(stream);
 
                 JsonTextReader tr = new JsonTextReader(sr);
                 List<ServiceRequest> data = new JsonSerializer().Deserialize<List<ServiceRequest>>(tr);
@@ -237,51 +188,30 @@ namespace Seattle311.API
                 sr.Close();
 
                 callback(data[0]);
-
-            }, state);
+            });
         }
 
         public void UploadImage(Action<ImgurData> callback, byte[] data)
         {
-            HttpWebRequest request = HttpWebRequest.Create("https://" + ImgurServerAddress + "/3/upload") as HttpWebRequest;
-            request.Accept = "application/json";
+            RestClient client = new RestClient("https://" + ImgurServerAddress);
 
-            request.Headers["Authorization"] = "Client-ID " + ImgurAPIKey;
+            RestRequest request = new RestRequest("/3/upload", Method.POST);
+            request.AddHeader("Authorization", "Client-ID " + ImgurAPIKey);
+            request.AddParameter("image", Convert.ToBase64String(data), ParameterType.RequestBody);
 
-            string postData = "image=" + Convert.ToBase64String(data);
-
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-
-            request.BeginGetRequestStream((result1) =>
+            client.ExecuteAsync(request, (response) =>
             {
-                using (Stream stream = request.EndGetRequestStream(result1))
-                {
-                    using (StreamWriter writer = new StreamWriter(stream))
-                    {
-                        writer.Write(postData);
-                        writer.Flush();
-                    }
-                }
+                MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(response.Content));
+                StreamReader sr = new StreamReader(stream);
 
-                request.BeginGetResponse((result2) =>
-                {
-                    var response = request.EndGetResponse(result2);
+                JsonTextReader tr = new JsonTextReader(sr);
+                ImgurData returnValue = new JsonSerializer().Deserialize<ImgurData>(tr);
 
-                    Stream stream = response.GetResponseStream();
-                    UTF8Encoding encoding2 = new UTF8Encoding();
-                    StreamReader sr = new StreamReader(stream, encoding2);
+                tr.Close();
+                sr.Close();
 
-                    JsonTextReader tr = new JsonTextReader(sr);
-                    ImgurData returnValue = new JsonSerializer().Deserialize<ImgurData>(tr);
-
-                    tr.Close();
-                    sr.Close();
-
-                    callback(returnValue);
-
-                }, null);
-            }, null);
+                callback(returnValue);
+            });
         }
     }
 }

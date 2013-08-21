@@ -330,9 +330,9 @@ namespace Seattle311
                 byte[] data = null;
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    e.ChosenPhoto.Seek(0, SeekOrigin.Begin);
+                    WriteableBitmap bitmap = new WriteableBitmap(photo);
 
-                    e.ChosenPhoto.CopyTo(stream);
+                    bitmap.SaveJpeg(stream, photo.PixelWidth, photo.PixelHeight, 0, 100);
                     data = stream.ToArray();
                 }
 
