@@ -18,7 +18,7 @@ namespace Seattle311.Controls
         {
             get
             {
-                return this.dtpValue.Value.Value;
+                return this.dtpDateValue.Value.Value.Add(this.dtpTimeValue.Value.Value.TimeOfDay);
             }
         }
 

@@ -50,6 +50,30 @@ namespace Seattle311
             }
         }
 
+        protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
+        {
+            if (App.Seattle311Client.UserData.IsValid() == false)
+            {
+                if (MessageBox.Show("You have not saved your user profile, and must do so before you can use this application. Are you sure you want to leave?", "User Profile Required", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+                {
+                    while (NavigationService.RemoveBackEntry() != null)
+                    {
+                        NavigationService.RemoveBackEntry();
+                    }
+
+                    base.OnBackKeyPress(e);
+                }
+                else
+                {
+                    e.Cancel = true;
+                }
+            }
+            else
+            {
+                base.OnBackKeyPress(e);
+            }
+        }
+
         private void LoadData()
         {
             this.prgLoading.Visibility = System.Windows.Visibility.Visible;
@@ -90,11 +114,20 @@ namespace Seattle311
             CurrentUserProfile.phone = this.txtPhone.Text;
             CurrentUserProfile.email = this.txtEmail.Text;
 
-            App.Seattle311Client.UserData = CurrentUserProfile;
+            if (CurrentUserProfile.IsValid() == true)
+            {
+                App.Seattle311Client.UserData = CurrentUserProfile;
 
-            this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
 
-            NavigationService.GoBack();
+                NavigationService.GoBack();
+            }
+            else
+            {
+                MessageBox.Show("You must complete all of the fields before you can save your changes.", "Validation Error", MessageBoxButton.OK);
+
+                this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+            }
         }
     }
 }

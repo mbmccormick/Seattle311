@@ -14,5 +14,18 @@ namespace Seattle311.API.Models
         public string last_name;
         public string email;
         public string phone;
+
+        public bool IsValid()
+        {
+            if (String.IsNullOrEmpty(first_name) ||
+                String.IsNullOrEmpty(last_name) ||
+                String.IsNullOrEmpty(email) ||
+                String.IsNullOrEmpty(phone))
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

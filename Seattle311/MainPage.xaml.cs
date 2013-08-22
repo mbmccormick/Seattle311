@@ -53,8 +53,7 @@ namespace Seattle311
         {
             if (e.IsNavigationInitiator == false)
             {
-                if (App.Seattle311Client.UserData.email == null ||
-                    App.Seattle311Client.UserData.email.Length == 0)
+                if (App.Seattle311Client.UserData.IsValid() == false)
                     SetUserProfile();
 
                 if (isServicesLoaded == false ||

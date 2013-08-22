@@ -207,9 +207,10 @@ namespace Seattle311
             ServiceRequest request = new ServiceRequest();
 
             request.service_code = CurrentService.service_code;
+            request.description = this.txtDescription.Text;
             request.lat = locationService.Position.Location.Latitude;
             request.@long = locationService.Position.Location.Longitude;
-            request.description = this.txtDescription.Text;
+            request.address = this.txtAddress.Text;
             request.media_url = imageUrl;
 
             #region Parse Attributes
@@ -235,14 +236,27 @@ namespace Seattle311
                 {
                 }
 
-                //try
-                //{
-                //    AttributeMultiValueListControl attribute = control as AttributeMultiValueListControl;
-                //    request.attributes.Add(attribute.AttributeData.code, attribute.Value.ToString());
-                //}
-                //catch (Exception ex)
-                //{
-                //}
+                try
+                {
+                    AttributeMultiValueListControl attribute = control as AttributeMultiValueListControl;
+
+                    if (attribute.AttributeData.required == true &&
+                        attribute.Value.Count == 0)
+                    {
+                        MessageBox.Show(attribute.AttributeData.description + " is a required field.", "Validation Error", MessageBoxButton.OK);
+                        validationSuccess = false;
+                    }
+
+                    int index = 0;
+                    foreach (var item in attribute.Value)
+                    {
+                        request.attributes.Add(attribute.AttributeData.code + "][" + index, item);
+                        index++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
 
                 try
                 {

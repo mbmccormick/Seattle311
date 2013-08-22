@@ -108,6 +108,7 @@ namespace Seattle311.API
             request.AddParameter("description", data.description, ParameterType.GetOrPost);
             request.AddParameter("lat", data.lat, ParameterType.GetOrPost);
             request.AddParameter("long", data.@long, ParameterType.GetOrPost);
+            request.AddParameter("address_string", data.address, ParameterType.GetOrPost);
 
             if (data.media_url != null)
                 request.AddParameter("media_url", data.media_url, ParameterType.GetOrPost);

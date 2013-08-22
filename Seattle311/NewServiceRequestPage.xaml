@@ -40,6 +40,9 @@
                     <TextBlock Text="Location" Style="{StaticResource PhoneTextSubtleStyle}" />
                     <TextBox x:Name="txtLocation" InputScope="Text" IsEnabled="false" />
 
+                    <TextBlock Text="Address" Style="{StaticResource PhoneTextSubtleStyle}" />
+                    <TextBox x:Name="txtAddress" InputScope="Text" />
+
                     <CheckBox x:Name="chkAnonymous" Content="Submit this request anonymously" Margin="0,0,0,12" />
                 </StackPanel>
             </StackPanel>

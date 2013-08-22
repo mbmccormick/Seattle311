@@ -11,6 +11,19 @@
     DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
     <StackPanel x:Name="LayoutRoot" Margin="0,0,0,12">
-        <TextBlock Text="{Binding AttributeData.description}" Style="{StaticResource PhoneTextSubtleStyle}" Margin="12,0,12,-6" />
+        <TextBlock Text="{Binding AttributeData.description}" Style="{StaticResource PhoneTextSubtleStyle}" TextWrapping="Wrap" Margin="12,0,12,-6" />
+        <toolkit:ListPicker x:Name="lstValue" SelectionMode="Multiple" ItemsSource="{Binding AttributeData.values}" FullModeHeader="{Binding AttributeData.description}">
+            <toolkit:ListPicker.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding name}" />
+                </DataTemplate>
+            </toolkit:ListPicker.ItemTemplate>
+
+            <toolkit:ListPicker.FullModeItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding name}" FontSize="{StaticResource PhoneFontSizeLarge}" FontFamily="{StaticResource PhoneFontFamilySemiLight}" Margin="0,12,12,12" />
+                </DataTemplate>
+            </toolkit:ListPicker.FullModeItemTemplate>
+        </toolkit:ListPicker>
     </StackPanel>
 </UserControl>
