@@ -125,22 +125,31 @@ namespace Seattle311
         {
             this.txtServicesLoading.Visibility = System.Windows.Visibility.Collapsed;
             this.txtServiceRequestsLoading.Visibility = System.Windows.Visibility.Collapsed;
-
-            this.lstServices.Visibility = System.Windows.Visibility.Visible;
-            this.lstServiceRequests.Visibility = System.Windows.Visibility.Visible;
         }
 
         private void ToggleEmptyText()
         {
             if (Services.Count == 0)
+            {
                 this.txtServicesEmpty.Visibility = System.Windows.Visibility.Visible;
+                this.lstServices.Visibility = System.Windows.Visibility.Collapsed;
+            }
             else
+            {
                 this.txtServicesEmpty.Visibility = System.Windows.Visibility.Collapsed;
+                this.lstServices.Visibility = System.Windows.Visibility.Visible;
+            }
 
             if (ServiceRequests.Count == 0)
+            {
                 this.txtServiceRequestsEmpty.Visibility = System.Windows.Visibility.Visible;
+                this.lstServiceRequests.Visibility = System.Windows.Visibility.Collapsed;
+            }
             else
+            {
                 this.txtServiceRequestsEmpty.Visibility = System.Windows.Visibility.Collapsed;
+                this.lstServiceRequests.Visibility = System.Windows.Visibility.Visible;
+            }
         }
 
         public void SetUserProfile()
