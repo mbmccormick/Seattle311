@@ -24,6 +24,7 @@ namespace Seattle311
         #endregion
 
         ApplicationBarIconButton refresh;
+        ApplicationBarMenuItem updateUserProfile;
 
         private bool isServicesLoaded = false;
         private bool isRecentRequestsLoaded = false;
@@ -45,8 +46,13 @@ namespace Seattle311
             refresh.Text = "refresh";
             refresh.Click += refresh_Click;
 
+            updateUserProfile = new ApplicationBarMenuItem();
+            updateUserProfile.Text = "update user profile";
+            updateUserProfile.Click += updateUserProfile_Click;
+
             // build application bar
             ApplicationBar.Buttons.Add(refresh);
+            ApplicationBar.MenuItems.Add(updateUserProfile);
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -82,6 +88,9 @@ namespace Seattle311
                     if (isServicesLoaded &&
                         isRecentRequestsLoaded)
                     {
+                        ToggleLoadingText();
+                        ToggleEmptyText();
+
                         this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
                     }
                 });
@@ -103,10 +112,35 @@ namespace Seattle311
                     if (isServicesLoaded &&
                         isRecentRequestsLoaded)
                     {
+                        ToggleLoadingText();
+                        ToggleEmptyText();
+
                         this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
                     }
                 });
             });
+        }
+
+        private void ToggleLoadingText()
+        {
+            this.txtServicesLoading.Visibility = System.Windows.Visibility.Collapsed;
+            this.txtServiceRequestsLoading.Visibility = System.Windows.Visibility.Collapsed;
+
+            this.lstServices.Visibility = System.Windows.Visibility.Visible;
+            this.lstServiceRequests.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        private void ToggleEmptyText()
+        {
+            if (Services.Count == 0)
+                this.txtServicesEmpty.Visibility = System.Windows.Visibility.Visible;
+            else
+                this.txtServicesEmpty.Visibility = System.Windows.Visibility.Collapsed;
+
+            if (ServiceRequests.Count == 0)
+                this.txtServiceRequestsEmpty.Visibility = System.Windows.Visibility.Visible;
+            else
+                this.txtServiceRequestsEmpty.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         public void SetUserProfile()
@@ -125,6 +159,11 @@ namespace Seattle311
             isRecentRequestsLoaded = false;
 
             LoadData();
+        }
+
+        private void updateUserProfile_Click(object sender, EventArgs e)
+        {
+            SetUserProfile();
         }
 
         private void Item_Tap(object sender, System.Windows.Input.GestureEventArgs e)
