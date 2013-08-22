@@ -21,38 +21,42 @@
 
         <phone:Pivot Title="SEATTLE 311">
             <phone:PivotItem Header="new request">
-                <StackPanel>
-                    <phone:LongListSelector x:Name="lstServices" Margin="0,0,-12,0" ItemsSource="{Binding Services}" Visibility="Collapsed">
-                        <phone:LongListSelector.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Margin="0,0,0,17" Tap="Item_Tap">
-                                    <TextBlock Text="{Binding service_name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextLargeStyle}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </phone:LongListSelector.ItemTemplate>
-                    </phone:LongListSelector>
+                <ScrollViewer>
+                    <StackPanel>
+                        <phone:LongListSelector x:Name="lstServices" Margin="0,0,-12,0" ItemsSource="{Binding Services}" Visibility="Collapsed">
+                            <phone:LongListSelector.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,17" Tap="Item_Tap">
+                                        <TextBlock Text="{Binding service_name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextLargeStyle}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </phone:LongListSelector.ItemTemplate>
+                        </phone:LongListSelector>
 
-                    <TextBlock x:Name="txtServicesLoading" Visibility="Visible" TextWrapping="Wrap" Text="Just a moment..." Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}"/>
-                    <TextBlock x:Name="txtServicesEmpty" Visibility="Collapsed" TextWrapping="Wrap" Text="There are no service definitions to display." Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}"/>
-                </StackPanel>
+                        <TextBlock x:Name="txtServicesLoading" Visibility="Visible" TextWrapping="Wrap" Text="Just a moment..." Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}"/>
+                        <TextBlock x:Name="txtServicesEmpty" Visibility="Collapsed" TextWrapping="Wrap" Text="There are no service definitions to display." Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}"/>
+                    </StackPanel>
+                </ScrollViewer>
             </phone:PivotItem>
 
             <phone:PivotItem Header="recent">
-                <StackPanel>
-                    <phone:LongListSelector x:Name="lstServiceRequests" Margin="0,0,-12,0" ItemsSource="{Binding ServiceRequests}" Visibility="Collapsed">
-                        <phone:LongListSelector.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Margin="0,0,0,17">
-                                    <TextBlock Text="{Binding service_name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextLargeStyle}"/>
-                                    <TextBlock Text="{Binding address}" TextWrapping="Wrap" Style="{StaticResource PhoneTextSubtleStyle}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </phone:LongListSelector.ItemTemplate>
-                    </phone:LongListSelector>
-                    
-                    <TextBlock x:Name="txtServiceRequestsLoading" Visibility="Visible" TextWrapping="Wrap" Text="Just a moment..." Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}"/>
-                    <TextBlock x:Name="txtServiceRequestsEmpty" Visibility="Collapsed" TextWrapping="Wrap" Text="There are no service requests to display." Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}"/>
-                </StackPanel>
+                <ScrollViewer>
+                    <StackPanel>
+                        <phone:LongListSelector x:Name="lstServiceRequests" Margin="0,0,-12,0" ItemsSource="{Binding ServiceRequests}" Visibility="Collapsed">
+                            <phone:LongListSelector.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,17">
+                                        <TextBlock Text="{Binding service_name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextLargeStyle}"/>
+                                        <TextBlock Text="{Binding address}" TextWrapping="Wrap" Style="{StaticResource PhoneTextSubtleStyle}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </phone:LongListSelector.ItemTemplate>
+                        </phone:LongListSelector>
+
+                        <TextBlock x:Name="txtServiceRequestsLoading" Visibility="Visible" TextWrapping="Wrap" Text="Just a moment..." Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}"/>
+                        <TextBlock x:Name="txtServiceRequestsEmpty" Visibility="Collapsed" TextWrapping="Wrap" Text="There are no service requests to display." Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}"/>
+                    </StackPanel>
+                </ScrollViewer>
             </phone:PivotItem>
         </phone:Pivot>
 
