@@ -8,7 +8,7 @@ How do I make this work for my city?
 
 The Seattle311 source code can be easily modified to work with your city by making a few small changes. Here is what you need to do:
 
-1. Rename all instances of `Seattle311` and `Seattle 3111` to a name of your choosing.
+1. Rename all instances of `Seattle311` and `Seattle 311` to a name of your choosing.
 2. Modify the service client declarations in the `App.xaml.cs` file to point to your city's Open311 endpoint and specify your own API key. The code looks like this: 
 ``
 Seattle311Client = new ServiceClient("servicerequest.seattle.gov", "YOUR_API_KEY");
