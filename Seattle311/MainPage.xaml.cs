@@ -26,6 +26,7 @@ namespace Seattle311
 
         ApplicationBarIconButton refresh;
         ApplicationBarMenuItem updateUserProfile;
+        ApplicationBarMenuItem about;
 
         private GeoCoordinateWatcher locationService = null;
 
@@ -57,9 +58,14 @@ namespace Seattle311
             updateUserProfile.Text = "update user profile";
             updateUserProfile.Click += updateUserProfile_Click;
 
+            about = new ApplicationBarMenuItem();
+            about.Text = "about";
+            about.Click += about_Click;
+
             // build application bar
             ApplicationBar.Buttons.Add(refresh);
             ApplicationBar.MenuItems.Add(updateUserProfile);
+            ApplicationBar.MenuItems.Add(about);
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -184,6 +190,14 @@ namespace Seattle311
         private void updateUserProfile_Click(object sender, EventArgs e)
         {
             SetUserProfile();
+        }
+
+        private void about_Click(object sender, EventArgs e)
+        {
+            SmartDispatcher.BeginInvoke(() =>
+            {
+                NavigationService.Navigate(new Uri("/YourLastAboutDialog;component/AboutPage.xaml", UriKind.Relative));
+            });
         }
 
         private void Item_Tap(object sender, System.Windows.Input.GestureEventArgs e)
