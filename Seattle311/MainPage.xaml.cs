@@ -87,7 +87,7 @@ namespace Seattle311
 
         private void LoadData()
         {
-            this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+            GlobalLoading.Instance.IsLoading = true;
 
             App.Seattle311Client.GetServices((result) =>
             {
@@ -108,7 +108,7 @@ namespace Seattle311
                         ToggleLoadingText();
                         ToggleEmptyText();
 
-                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                        GlobalLoading.Instance.IsLoading = false;
                     }
                 });
             });
@@ -132,7 +132,7 @@ namespace Seattle311
                         ToggleLoadingText();
                         ToggleEmptyText();
 
-                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                        GlobalLoading.Instance.IsLoading = false;
                     }
                 });
             });
@@ -179,7 +179,7 @@ namespace Seattle311
 
         private void refresh_Click(object sender, EventArgs e)
         {
-            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+            if (GlobalLoading.Instance.IsLoading) return;
 
             isServicesLoaded = false;
             isRecentRequestsLoaded = false;
@@ -202,7 +202,7 @@ namespace Seattle311
 
         private void Item_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+            if (GlobalLoading.Instance.IsLoading) return;
 
             Service item = ((FrameworkElement)sender).DataContext as Service;
 

@@ -76,7 +76,7 @@ namespace Seattle311
 
         private void LoadData()
         {
-            this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+            GlobalLoading.Instance.IsLoading = true;
 
             CurrentUserProfile = App.Seattle311Client.UserData;
 
@@ -100,14 +100,14 @@ namespace Seattle311
 
             isLoaded = true;
 
-            this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+            GlobalLoading.Instance.IsLoading = false;
         }
 
         private void save_Click(object sender, EventArgs e)
         {
-            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+            if (GlobalLoading.Instance.IsLoading) return;
 
-            this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+            GlobalLoading.Instance.IsLoading = true;
 
             CurrentUserProfile.first_name = this.txtFirstName.Text;
             CurrentUserProfile.last_name = this.txtLastName.Text;
@@ -118,7 +118,7 @@ namespace Seattle311
             {
                 App.Seattle311Client.UserData = CurrentUserProfile;
 
-                this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                GlobalLoading.Instance.IsLoading = false;
 
                 NavigationService.GoBack();
             }
@@ -126,7 +126,7 @@ namespace Seattle311
             {
                 MessageBox.Show("You must complete all of the fields before you can save your changes.", "Validation Error", MessageBoxButton.OK);
 
-                this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                GlobalLoading.Instance.IsLoading = false;
             }
         }
     }

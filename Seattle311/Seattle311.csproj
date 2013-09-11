@@ -94,6 +94,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ExtendedPropertiesHelper.cs" />
+    <Compile Include="Common\GlobalLoading.cs" />
     <Compile Include="Common\SmartDispatcher.cs" />
     <Compile Include="Controls\AttributeDateTimeControl.xaml.cs">
       <DependentUpon>AttributeDateTimeControl.xaml</DependentUpon>

@@ -21,8 +21,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ProgressBar Name="prgLoading" IsIndeterminate="True" Margin="0,0,0,0" VerticalAlignment="Top" />
-
         <StackPanel Grid.Row="0" Margin="12,17,0,28">
             <TextBlock x:Name="txtTitle" Text="SEATTLE 311" Style="{StaticResource PhoneTextNormalStyle}" FontSize="{StaticResource PhoneFontSizeMedium}" FontFamily="{StaticResource PhoneFontFamilySemiBold}" />
             <TextBlock Text="user profile" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>

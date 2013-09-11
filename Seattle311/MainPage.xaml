@@ -23,8 +23,6 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <ProgressBar Name="prgLoading" IsIndeterminate="True" Margin="0,0,0,0" VerticalAlignment="Top" />
-
         <maps:Map x:Name="mapLocation" Grid.Row="0" Height="125" ZoomLevel="16" IsHitTestVisible="False" />
 
         <phone:Pivot Title="SEATTLE 311" Grid.Row="1">

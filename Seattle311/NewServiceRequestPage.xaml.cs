@@ -76,7 +76,7 @@ namespace Seattle311
 
         private void LoadData()
         {
-            this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+            GlobalLoading.Instance.IsLoading = true;
 
             string id;
             if (NavigationContext.QueryString.TryGetValue("id", out id))
@@ -144,7 +144,7 @@ namespace Seattle311
 
                         isLoaded = true;
 
-                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                        GlobalLoading.Instance.IsLoading = false;
                     });
                 }, id);
             }
@@ -152,7 +152,7 @@ namespace Seattle311
 
         private void attach_Click(object sender, EventArgs e)
         {
-            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+            if (GlobalLoading.Instance.IsLoading) return;
 
             PhotoChooserTask task = new PhotoChooserTask();
 
@@ -166,7 +166,7 @@ namespace Seattle311
         {
             if (e.TaskResult == TaskResult.OK)
             {
-                this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+                GlobalLoading.Instance.IsLoading = true;
 
                 BitmapImage photo = new BitmapImage();
                 photo.SetSource(e.ChosenPhoto);
@@ -190,9 +190,9 @@ namespace Seattle311
                 {
                     SmartDispatcher.BeginInvoke(() =>
                     {
-                        this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
-
                         imageUrl = result.Image.Link;
+
+                        GlobalLoading.Instance.IsLoading = false;
                     });
                 }, data);
             }
@@ -200,9 +200,9 @@ namespace Seattle311
 
         private void submit_Click(object sender, EventArgs e)
         {
-            if (this.prgLoading.Visibility == System.Windows.Visibility.Visible) return;
+            if (GlobalLoading.Instance.IsLoading) return;
 
-            this.prgLoading.Visibility = System.Windows.Visibility.Visible;
+            GlobalLoading.Instance.IsLoading = true;
 
             ServiceRequest request = new ServiceRequest();
 
@@ -328,7 +328,7 @@ namespace Seattle311
 
                 if (validationSuccess == false)
                 {
-                    this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                    GlobalLoading.Instance.IsLoading = false;
                     return;
                 }
             }
@@ -345,7 +345,7 @@ namespace Seattle311
             {
                 SmartDispatcher.BeginInvoke(() =>
                 {
-                    this.prgLoading.Visibility = System.Windows.Visibility.Collapsed;
+                    GlobalLoading.Instance.IsLoading = false;
 
                     if (result1.ResponseObject != null)
                     {
