@@ -90,7 +90,7 @@ namespace Seattle311
                         string name;
                         if (NavigationContext.QueryString.TryGetValue("name", out name))
                         {
-                            this.txtTitle.Text = this.txtTitle.Text + " - " + name.ToUpper();
+                            this.txtTitle.Text = name.ToUpper();
                         }
 
                         if (CurrentService.attributes != null)

@@ -11,6 +11,7 @@ using Seattle311.Resources;
 using Seattle311.API.Models;
 using System.Collections.ObjectModel;
 using Seattle311.Common;
+using System.Device.Location;
 
 namespace Seattle311
 {
@@ -26,6 +27,8 @@ namespace Seattle311
         ApplicationBarIconButton refresh;
         ApplicationBarMenuItem updateUserProfile;
 
+        private GeoCoordinateWatcher locationService = null;
+
         private bool isServicesLoaded = false;
         private bool isRecentRequestsLoaded = false;
 
@@ -35,6 +38,10 @@ namespace Seattle311
 
             Services = new ObservableCollection<Service>();
             ServiceRequests = new ObservableCollection<ServiceRequest>();
+
+            locationService = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
+            locationService.MovementThreshold = 150;
+            locationService.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationService_PositionChanged);
 
             this.BuildApplicationBar();
         }
@@ -57,6 +64,8 @@ namespace Seattle311
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
+            locationService.Start();
+
             if (e.IsNavigationInitiator == false)
             {
                 if (App.Seattle311Client.UserData.IsValid() == false)
@@ -64,7 +73,9 @@ namespace Seattle311
 
                 if (isServicesLoaded == false ||
                     isRecentRequestsLoaded == false)
+                {
                     LoadData();
+                }
             }
         }
 
@@ -182,6 +193,15 @@ namespace Seattle311
             Service item = ((FrameworkElement)sender).DataContext as Service;
 
             App.RootFrame.Navigate(new Uri("/NewServiceRequestPage.xaml?id=" + item.service_code + "&name=" + item.service_name, UriKind.Relative));
+        }
+
+        private void locationService_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
+        {
+            if (locationService.Status == GeoPositionStatus.Ready &&
+                e.Position.Location.IsUnknown == false)
+            {
+                this.mapLocation.Center = e.Position.Location;
+            }
         }
     }
 }
