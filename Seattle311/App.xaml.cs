@@ -17,6 +17,39 @@ namespace Seattle311
     public partial class App : Application
     {
         public static ServiceClient Seattle311Client;
+        public static string FeedbackEmailAddress = "feedback@mbmccormick.com";
+
+        public static event EventHandler<ApplicationUnhandledExceptionEventArgs> UnhandledExceptionHandled;
+
+        public static string VersionNumber
+        {
+            get
+            {
+                string assembly = System.Reflection.Assembly.GetExecutingAssembly().FullName;
+                string[] version = assembly.Split('=')[1].Split(',')[0].Split('.');
+
+                return version[0] + "." + version[1];
+            }
+        }
+
+        public static string ExtendedVersionNumber
+        {
+            get
+            {
+                string assembly = System.Reflection.Assembly.GetExecutingAssembly().FullName;
+                string[] version = assembly.Split('=')[1].Split(',')[0].Split('.');
+
+                return version[0] + "." + version[1] + "." + version[2];
+            }
+        }
+
+        public static string PlatformVersionNumber
+        {
+            get
+            {
+                return System.Environment.OSVersion.Version.ToString(3);
+            }
+        }
 
         public static PhoneApplicationFrame RootFrame { get; private set; }
 
@@ -52,6 +85,9 @@ namespace Seattle311
 
             Seattle311Client.UserData.device_id = ExtendedPropertiesHelper.DeviceUniqueID;
             Seattle311Client.UserData.account_id = ExtendedPropertiesHelper.WindowsLiveAnonymousID;
+
+            if (System.Diagnostics.Debugger.IsAttached)
+                MetroGridHelper.IsVisible = true;
         }
 
         private void Application_Launching(object sender, LaunchingEventArgs e)
@@ -84,6 +120,18 @@ namespace Seattle311
 
         private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
         {
+            LittleWatson.ReportException(e.ExceptionObject, null);
+
+            RootFrame.Dispatcher.BeginInvoke(() =>
+            {
+                LittleWatson.CheckForPreviousException(false);
+            });
+
+            e.Handled = true;
+
+            if (UnhandledExceptionHandled != null)
+                UnhandledExceptionHandled(sender, e);
+
             if (Debugger.IsAttached)
             {
                 // An unhandled exception has occurred; break into the debugger

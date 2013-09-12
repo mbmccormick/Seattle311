@@ -95,6 +95,8 @@
     </Compile>
     <Compile Include="Common\ExtendedPropertiesHelper.cs" />
     <Compile Include="Common\GlobalLoading.cs" />
+    <Compile Include="Common\LittleWatson.cs" />
+    <Compile Include="Common\MetroGridHelper.cs" />
     <Compile Include="Common\SmartDispatcher.cs" />
     <Compile Include="Controls\AttributeDateTimeControl.xaml.cs">
       <DependentUpon>AttributeDateTimeControl.xaml</DependentUpon>
@@ -206,7 +208,9 @@
     <Content Include="Assets\Tiles\IconicTileSmall.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\About\Data.xml" />
+    <Content Include="Content\About\Data.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Resources\refresh.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

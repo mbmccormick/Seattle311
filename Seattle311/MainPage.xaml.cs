@@ -74,6 +74,8 @@ namespace Seattle311
 
             if (e.IsNavigationInitiator == false)
             {
+                LittleWatson.CheckForPreviousException(true);
+
                 if (App.Seattle311Client.UserData.IsValid() == false)
                     SetUserProfile();
 
