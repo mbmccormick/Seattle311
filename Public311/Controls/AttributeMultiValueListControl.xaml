@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="Public311.Controls.AttributeMultiValueListControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    DataContext="{Binding RelativeSource={RelativeSource Self}}">
+
+    <StackPanel x:Name="LayoutRoot" Margin="0,0,0,12">
+        <TextBlock Text="{Binding AttributeData.description}" Style="{StaticResource PhoneTextSubtleStyle}" TextWrapping="Wrap" Margin="12,0,12,-6" />
+        <toolkit:ListPicker x:Name="lstValue" SelectionMode="Multiple" ItemsSource="{Binding AttributeData.values}" FullModeHeader="{Binding AttributeData.description}">
+            <toolkit:ListPicker.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding name}" />
+                </DataTemplate>
+            </toolkit:ListPicker.ItemTemplate>
+
+            <toolkit:ListPicker.FullModeItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding name}" FontSize="{StaticResource PhoneFontSizeLarge}" FontFamily="{StaticResource PhoneFontFamilySemiLight}" Margin="0,12,12,12" />
+                </DataTemplate>
+            </toolkit:ListPicker.FullModeItemTemplate>
+        </toolkit:ListPicker>
+    </StackPanel>
+</UserControl>
